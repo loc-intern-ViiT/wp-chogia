@@ -22,3 +22,6 @@ include plugin_dir_path(__FILE__) . 'shortcodes/table-ty-gia-ngan-hang-hom-nay.p
 
 //------- tổng hợp ngoại tệ của các ngân hàng việt nam -------//
 include plugin_dir_path(__FILE__) . 'shortcodes/tong-hop-ngoai-te-viet-nam.php';
+
+//------- lãi suất vay mua xe -------//
+include plugin_dir_path(__FILE__) . 'shortcodes/lai-suat-vay-mua-xe.php';
