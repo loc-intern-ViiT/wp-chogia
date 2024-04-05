@@ -19,3 +19,6 @@ include plugin_dir_path(__FILE__) . 'shortcodes/gia-xang-dau-hom-nay.php';
 
 //------- tỷ giá ngân hàng hôm nay -------//
 include plugin_dir_path(__FILE__) . 'shortcodes/table-ty-gia-ngan-hang-hom-nay.php';
+
+//------- tổng hợp ngoại tệ của các ngân hàng việt nam -------//
+include plugin_dir_path(__FILE__) . 'shortcodes/tong-hop-ngoai-te-viet-nam.php';

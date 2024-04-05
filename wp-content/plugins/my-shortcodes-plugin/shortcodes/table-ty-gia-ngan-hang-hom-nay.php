@@ -1,111 +1,83 @@
 <?php
 
 add_shortcode('shortcode_ty_gia_ngan_hang', 'create_shortcode_ty_gia_ngan_hang_hom_nay');
+
 function create_shortcode_ty_gia_ngan_hang_hom_nay()
 {
-
+    // Lấy dữ liệu từ API
+    $response = wp_remote_get('https://apichogia.viit.com.vn/api/json/only_bank');
+    // Kiểm tra nếu có dữ liệu từ API
+    if (!is_wp_error($response)) {
+        $body = wp_remote_retrieve_body($response);
+        $banks = json_decode($body, true);
+        // Kiểm tra xem $banks có phải là một mảng không trước khi truy cập vào thuộc tính 'bank'
+        if (is_array($banks) && isset($banks['bank']) && is_array($banks['bank'])) {
+            $bank_data = $banks['bank']; // Lấy dữ liệu từ thuộc tính 'bank'
+            // Kiểm tra nếu dữ liệu về ngân hàng không rỗng
+            if (!empty($bank_data)) {
 ?>
-    <style>
-        .exchange-rate__table th {
-            color: black;
+                <style>
+                    .exchange-rate__table {
+                        font-family: arial, sans-serif;
+                        border-collapse: collapse;
+                        width: 100%;
+                        box-shadow: 0px 0px 4px 4px rgba(0, 0, 0, 0.2);
+                    }
 
-        }
+                    td,
+                    th {
+                        border: 1px solid #dddddd;
+                        text-align: left;
+                        padding: 8px;
+                    }
 
-        .exchange-rate__table img {
-            margin-left: 1em;
-            width: 24px;
-            height: 24px;
-        }
+                    tr:nth-child(even) {
+                        background-color: #dddddd;
+                    }
 
-        table {
-            font-family: arial, sans-serif;
-            border-collapse: collapse;
-            width: 100%;
-        }
+                    .exchange-rate__table img {
+                        width: 24px;
+                        height: 24px;
+                        margin: 0 10px;
+                    }
 
-        td,
-        th {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-
-        tr:nth-child(even) {
-            background-color: #F1F1F1;
-        }
-    </style>
-    <table class="exchange-rate__table">
-        <thead>
-            <tr>
-                <th>ngân hàng</th>
-                <th>tên đầy đủ</th>
-                <th>mã ngân hàng</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="board-price-name">
-                    <a href="#">
-                        <img src="https://webtygia.com/storage/images/9d72757312c6f93781294775fb36c1e3.png" alt="img ABBANK">
-                        <span>ABBANK</span>
-                    </a>
-                </td>
-                <td><span>Ngân hàng An Bình</span></td>
-                <td><span>ABB</span></td>
-            </tr>
-            <tr>
-                <td class="board-price-name">
-                    <a href="#">
-                        <img src="https://webtygia.com/storage/images/09196bb08a9fe4a585d78e2c467be934.png" alt="img ABBANK">
-                        <span>ACB</span>
-                    </a>
-                </td>
-                <td><span>Ngân hàng Á Châu</span></td>
-                <td><span>ACB</span></td>
-            </tr>
-            <tr>
-                <td class="board-price-name">
-                    <a href="#">
-                        <img src="https://webtygia.com/storage/images/09196bb08a9fe4a585d78e2c467be934.png" alt="img ABBANK">
-                        <span>AGRIBANK</span>
-                    </a>
-                </td>
-                <td><span>Ngân hàng Nông Nghiệp và Phát Triển Nông Thôn</span></td>
-                <td><span>AGR</span></td>
-            </tr>
-            <tr>
-                <td class="board-price-name">
-                    <a href="#">
-                        <img src="https://webtygia.com/storage/images/feba3fd4f6a9df6600a288cca8cbdd0f.png" alt="img ABBANK">
-                        <span>BIDV</span>
-                    </a>
-                </td>
-                <td><span>Ngân hàng Đầu tư và Phát Triển Việt Nam</span></td>
-                <td><span>BIDV</span></td>
-            </tr>
-            <tr>
-                <td class="board-price-name">
-                    <a href="#">
-                        <img src="https://webtygia.com/storage/images/4d11b6c3b74b7bda27bcd3a6446d5ea7.png" alt="img ABBANK">
-                        <span>BVBANK</span>
-                    </a>
-                </td>
-                <td><span>Ngân hàng Bảo Việt</span></td>
-                <td><span>BVB</span></td>
-            </tr>
-            <tr>
-                <td class="board-price-name">
-                    <a href="#">
-                        <img src="	https://webtygia.com/storage/images/6055d5012fd812bbf94f9956c34b3c7d.png" alt="img ABBANK">
-                        <span>CBBank</span>
-                    </a>
-                </td>
-                <td><span>Ngân hàng Xây Dựng</span></td>
-                <td><span>CBBank</span></td>
-            </tr>
-        </tbody>
-    </table>
-
-
+                    .exchange-rate__table a {
+                        color: #2D95E4;
+                    }
+                </style>
+                <table class="exchange-rate__table" style="border: 1px solid #2D95E4">
+                    <thead>
+                        <tr style="color: black;">
+                            <th class="txt_bank">Ngân hàng</th>
+                            <th>Tên đầy đủ</th>
+                            <th>Mã ngân hàng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($bank_data as $bank) : ?>
+                            <tr>
+                                <td class="ps-3">
+                                    <a href="#">
+                                        <div class="bank_name">
+                                            <img decoding="async" class="image-16" src="https://webtygia.com/storage/<?php echo isset($bank['image']) ? $bank['image'] : ''; ?>">
+                                            <span><?php echo isset($bank['short_name']) ? $bank['short_name'] : ''; ?></span>
+                                        </div>
+                                    </a>
+                                </td>
+                                <td><?php echo isset($bank['name']) ? $bank['name'] : ''; ?></td>
+                                <td><?php echo isset($bank['code']) ? $bank['code'] : ''; ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
 <?php
+            } else {
+                echo "Không có dữ liệu về ngân hàng.";
+            }
+        } else {
+            echo "Dữ liệu từ API không hợp lệ hoặc không có dữ liệu về ngân hàng.";
+        }
+    } else {
+        echo "Không thể lấy dữ liệu từ API.";
+    }
 }
