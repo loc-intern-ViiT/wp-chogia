@@ -1,14 +1,17 @@
 <?php
-add_shortcode('shortcode_lai_suat_vay_mua_xe', 'create_shortcode_lai_suat_vay_mua_xe');
+add_shortcode('shortcode_lai_suat_vay_tin_chap', 'create_shortcode_lai_suat_vay_tin_chap');
 
-function create_shortcode_lai_suat_vay_mua_xe(){
-    $response = wp_remote_get('https://apichogia.viit.com.vn/api/json/lai-suat?slug=vay-mua-xe');
+function create_shortcode_lai_suat_vay_tin_chap(){
+    $response = wp_remote_get('https://apichogia.viit.com.vn/api/json/lai-suat?slug=vay-tin-chap');
     if(!is_wp_error($response)){
         $body = wp_remote_retrieve_body($response);
-        $interest_rate = json_decode($body,true);
+        $data = json_decode($body,true);
 
-        if(is_array($interest_rate) && isset($interest_rate['rates']) && is_array($interest_rate['rates']) ){
-            if (!empty($interest_rate['rates'])) {
+        if($data && isset($data['success']) && $data['success'] && isset($data['rates'])){
+
+            $rates = $data['rates'];
+            $time_savings = $data['time_savings'];
+            if (!empty($rates) && is_array($rates)) {
             ?>
             <style>
                 .interest-rate__wrapper {
@@ -27,13 +30,12 @@ function create_shortcode_lai_suat_vay_mua_xe(){
                 }
 
                 .interest-rate__table th {
-                    border: 1px solid #dee2e6;
                     text-transform: none !important;
+                    align-items: center;
                     padding: 5px;
                 }
 
                 .interest-rate__table td {
-                    border: 1px solid #dee2e6;
                     text-transform: none !important;
                 }
 
@@ -41,10 +43,13 @@ function create_shortcode_lai_suat_vay_mua_xe(){
                     width: 16px;
                     height: 16px;
                 }
-                .sticky-col{
+                .interest-rate__table .sticky-col{
+                    max-width: 200px !important;
+                    
                     position: sticky;
                     z-index: 1;
                     left: 0;
+                    
                 }
             </style>
             <div class="interest-rate__wrapper">
@@ -57,47 +62,44 @@ function create_shortcode_lai_suat_vay_mua_xe(){
                                 colspan="11">Kỳ hạn</th>
                         </tr>
                         <tr>
-                            <th>6 tháng</th>
-                            <th>9 tháng</th>
-                            <th>12 tháng</th>
-                            <th>18 tháng</th>
-                            <th>2 năm</th>
-                            <th>3 năm</th>
-                            <th>4 năm</th>
-                            <th>5 năm</th>
-                            <th>6 năm</th>
-                            <th>7 năm</th>
-                            <th>8 năm</th>
+                            <?php foreach($time_savings as $term) : ?>
+                                <th class="text-center bg-f1"><?php echo isset($term['name']) ? $term['name'] : ''; ?></th>
+                            <?php endforeach ?>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach($interest_rate['rates'] as $key => $value) :?>
+                        <?php foreach($rates as $bank => $value) :?>
                             <tr>
                             <td class="sticky-col"
                                 style="display: flex; align-items: center; gap: 10px; padding: 5px; font-size: 16px; background-color: rgb(255, 255, 255);">
                                 <img class="image-16"
-                                    src="https://webtygia.com/storage/<?php echo isset($bank['image']) ? $bank['image'] : ''; ?>"><span><?php echo $key ?></span>
+                                    src="https://webtygia.com/storage/<?php 
+                                    foreach( $value as $bank_term) : 
+                                        echo $bank_term[0]['bank']['image'];
+                                        break;
+                                    endforeach;
+                                    ?>"><span><?php echo $bank ?></span>
                             </td>
-                            <?php $value_data = $value['6thang'];?>
-
-                            <td><?php echo isset($value_data['loan_rate']) ? $value_data['loan_rate'] : '11'; ?></td>
-                                
-                            <td>--</td>
-                            <td>--</td>
-                            <td>--</td>
-                            <td>8.00</td>
-                            <td>8.00</td>
-                            <td>8.00</td>
-                            <td>8.00</td>
-                            <td>8.00</td>
-                            <td>8.00</td>
-                            <td>8.00</td>
+                            <?php foreach ($time_savings as $term) {
+                                    ?>
+                                    <td>
+                                        <?php
+                                        $rate = isset($value[$term['value']][0]['loan_rate']) ? $value[$term['value']][0]['loan_rate'] : '--';
+                                        echo ($rate !== '--' ? number_format($rate, 2) . '' : $rate);
+                                        ?>
+                                    </td>
+                                <?php
+                                } 
+                            ?>
                         </tr>
                         <?php endforeach;?>
                     </tbody>
                 </table>
             </div>  
             <?php
+            }
+            else{
+                return "không phải là array or không có key trong dữ liệu 111";
             }
         }
         else{
